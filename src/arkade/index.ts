@@ -201,7 +201,10 @@ const getAdminBalance = async () => {
   return {
     address: address.encode(),
     balance,
-    assets: Array.from(bridgedAssets.values()),
+    assets: Array.from(bridgedAssets.values()).map((asset) => ({
+      ...asset,
+      assetAmount: asset.assetAmount.toString(),
+    })),
   };
 };
 
