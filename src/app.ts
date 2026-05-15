@@ -24,17 +24,18 @@ app.get("/admin", async (_req, res) => {
   res.json(balance);
 });
 
-/** Get EVM bridge address corresponding to an Arkade address */
-app.get("/bridge/:address", async (req, res) => {
+/** Derive EVM address corresponding to an Arkade address */
+app.get("/derive/:address", async (req, res) => {
   const outputKey = getOutputKeyFromAddress(
     ArkAddress.decode(req.params.address),
   );
-  const bridgeAddress = await getBridgeAddress(outputKey);
+  const derivedAddress = await getBridgeAddress(outputKey);
   const pendingTokens = await getPendingTokens(outputKey);
   const sweptTokens = await getSweptTokens(outputKey);
   res.json({
+    address: req.params.address,
     outputKey,
-    bridgeAddress,
+    derivedAddress,
     pendingTokens,
     sweptTokens,
   });
@@ -47,13 +48,14 @@ app.get("/sweep/:address", async (req, res) => {
   );
   const sweepResults = await sweepTokens(outputKey);
   res.json({
+    address: req.params.address,
     outputKey,
     sweepResults,
   });
 });
 
 /** Validate an EVM token sweep event and mint a bridged Arkade asset */
-app.get("/process/:address", async (req, res) => {
+app.get("/validate/:address", async (req, res) => {
   const outputKey = getOutputKeyFromAddress(
     ArkAddress.decode(req.params.address),
   );
@@ -64,6 +66,7 @@ app.get("/process/:address", async (req, res) => {
   }
   const issueResult = await issueBridgedAsset(latestSweep);
   res.json({
+    address: req.params.address,
     outputKey,
     latestSweep,
     issueResult,
