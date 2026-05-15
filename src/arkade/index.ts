@@ -189,7 +189,7 @@ const _issueBridgedAsset = async (
 };
 
 /** Get admin balance */
-const getAdminBalance = async () => {
+const getAdminSummary = async () => {
   const identity = getIdentity();
   const operatorInfo = await getOperatorInfo();
   const address = await getAddress(identity, operatorInfo);
@@ -208,6 +208,20 @@ const getAdminBalance = async () => {
   };
 };
 
+const burnAdminAssets = async () => {
+  const identity = getIdentity();
+  const indexer = getIndexer();
+  const wallet = await getWallet(identity, indexer);
+  const assetManager = wallet.assetManager;
+  const { assets } = await wallet.getBalance();
+  let results = [];
+  for (const asset of assets) {
+    const result = await assetManager.burn(asset);
+    results.push(result);
+  }
+  return results;
+};
+
 const issueBridgedAsset = async (sweptToken: SweptToken) => {
   const identity = getIdentity();
   const indexer = getIndexer();
@@ -215,21 +229,10 @@ const issueBridgedAsset = async (sweptToken: SweptToken) => {
   return await _issueBridgedAsset(sweptToken, identity, indexer, operatorInfo);
 };
 
-const burnAdminAssets = async () => {
-  const identity = getIdentity();
-  const indexer = getIndexer();
-  const wallet = await getWallet(identity, indexer);
-  const assetManager = wallet.assetManager;
-  const { assets } = await wallet.getBalance();
-  for (const { assetId, amount } of assets) {
-    await assetManager.burn({ assetId, amount });
-  }
-};
-
 export {
   getAddressFromOutputKey,
   getOutputKeyFromAddress,
-  getAdminBalance,
-  issueBridgedAsset,
+  getAdminSummary,
   burnAdminAssets,
+  issueBridgedAsset,
 };
