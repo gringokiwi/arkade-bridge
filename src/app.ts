@@ -12,8 +12,7 @@ import {
   getSweptTokens,
   sweepTokens,
 } from "./evm/index.js";
-import { chains, getChainCode } from "./evm/chain.js";
-import { tokens } from "./evm/token.js";
+import { usdc, usdt } from "./evm/token.js";
 
 const app = express();
 
@@ -32,20 +31,23 @@ app.get("/derive/:address", async (req, res) => {
     ArkAddress.decode(req.params.address),
   );
   const derivedAddress = await getBridgeAddress(outputKey);
-  const availableNetworks = Object.keys(chains);
-  const availableTokens = Object.values(tokens).map(
-    ({ address, chainCode, chainId }) => ({
-      tokenAddress: address,
-      chainCode,
-      chainId,
-    }),
-  );
+  const depositTokens = [
+    ...Object.values(usdt).map(({ address, chainCode }) => ({
+      token: "USDT",
+      address: address,
+      network: chainCode,
+    })),
+    ...Object.values(usdc).map(({ address, chainCode }) => ({
+      token: "USDC",
+      address: address,
+      network: chainCode,
+    })),
+  ];
   res.json({
     address: req.params.address,
     outputKey,
     derivedAddress,
-    availableNetworks,
-    availableTokens,
+    depositTokens,
   });
 });
 

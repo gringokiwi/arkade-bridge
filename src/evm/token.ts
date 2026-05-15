@@ -190,4 +190,4 @@ const getTokenMetadata = async (
   return tokenMetadata;
 };
 
-export { tokens, TokenMetadata, getTokenBalances, getTokenMetadata };
+export { usdc, usdt, TokenMetadata, getTokenBalances, getTokenMetadata };
