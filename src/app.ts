@@ -12,6 +12,8 @@ import {
   getSweptTokens,
   sweepTokens,
 } from "./evm/index.js";
+import { chains, getChainCode } from "./evm/chain.js";
+import { tokens } from "./evm/token.js";
 
 const app = express();
 
@@ -30,18 +32,37 @@ app.get("/derive/:address", async (req, res) => {
     ArkAddress.decode(req.params.address),
   );
   const derivedAddress = await getBridgeAddress(outputKey);
-  const pendingTokens = await getPendingTokens(outputKey);
-  const sweptTokens = await getSweptTokens(outputKey);
+  const availableNetworks = Object.keys(chains);
+  const availableTokens = Object.values(tokens).map(
+    ({ address, chainCode, chainId }) => ({
+      tokenAddress: address,
+      chainCode,
+      chainId,
+    }),
+  );
   res.json({
     address: req.params.address,
     outputKey,
     derivedAddress,
-    pendingTokens,
-    sweptTokens,
+    availableNetworks,
+    availableTokens,
   });
 });
 
-/** Sweep funds from an EVM bridge address corresponding to an Arkade address */
+/** Get pending (non-swept) token deposits */
+app.get("/pending/:address", async (req, res) => {
+  const outputKey = getOutputKeyFromAddress(
+    ArkAddress.decode(req.params.address),
+  );
+  const pendingTokens = await getPendingTokens(outputKey);
+  res.json({
+    address: req.params.address,
+    outputKey,
+    pendingTokens,
+  });
+});
+
+/** Sweep token deposits */
 app.get("/sweep/:address", async (req, res) => {
   const outputKey = getOutputKeyFromAddress(
     ArkAddress.decode(req.params.address),
@@ -54,8 +75,21 @@ app.get("/sweep/:address", async (req, res) => {
   });
 });
 
-/** Validate an EVM token sweep event and mint a bridged Arkade asset */
-app.get("/validate/:address", async (req, res) => {
+/** Get swept token deposits */
+app.get("/swept/:address", async (req, res) => {
+  const outputKey = getOutputKeyFromAddress(
+    ArkAddress.decode(req.params.address),
+  );
+  const sweptTokens = await getSweptTokens(outputKey);
+  res.json({
+    address: req.params.address,
+    outputKey,
+    sweptTokens,
+  });
+});
+
+/** Process latest sweep */
+app.get("/issue/:address", async (req, res) => {
   const outputKey = getOutputKeyFromAddress(
     ArkAddress.decode(req.params.address),
   );
