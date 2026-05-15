@@ -3,6 +3,11 @@
   "version": "0.0.1",
   "main": "dist/server.js",
   "type": "module",
+  "packageManager": "pnpm@10.25.0",
+  "engines": {
+    "node": ">=22.12.0 <23",
+    "pnpm": ">=10.25.0 <11"
+  },
   "scripts": {
     "dev": "nodemon",
     "build": "tsc",
