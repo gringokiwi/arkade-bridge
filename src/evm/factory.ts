@@ -357,7 +357,7 @@ const getSweptTokenEvents = async (
       toBlock,
     },
   );
-  return events.map(
+  return events.reverse().map(
     ({ transactionHash: sweepTxHash, logIndex: sweepLogIndex, args }) =>
       ({
         tokenAddress: getAddress(args.token!),
